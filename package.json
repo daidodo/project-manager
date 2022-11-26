@@ -1,16 +1,16 @@
 {
-  "name": "PROJECT_NAME",
-  "description": "PROJECT DESCRIPTION.",
+  "name": "@dozerg/project-manager",
+  "description": "A project manager.",
   "bugs": {
-    "url": "https://github.com/daidodo/PROJECT_NAME/issues"
+    "url": "https://github.com/daidodo/project-manager/issues"
   },
-  "homepage": "https://github.com/daidodo/PROJECT_NAME#readme",
+  "homepage": "https://github.com/daidodo/project-manager#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daidodo/PROJECT_NAME.git"
+    "url": "git+https://github.com/daidodo/project-manager.git"
   },
   "keywords": [
-    "PROJECT KEYWORD"
+    "project","manager","manage", "management"
   ],
   "version": "0.0.1",
   "main": "dist/index.js",

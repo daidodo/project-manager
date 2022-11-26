@@ -1,4 +1,4 @@
-# PROJECT_NAME
+# Project Manager
 
 <!--
 First publish:
@@ -8,9 +8,9 @@ npm publish --access public
 ```
 -->
 
-[![npm](https://img.shields.io/npm/v/PROJECT_NAME.svg)](https://www.npmjs.com/package/PROJECT_NAME)
-![Downloads](https://img.shields.io/npm/dm/PROJECT_NAME.svg)
-[![Build Status](https://github.com/daidodo/TEMPLATE_TypeScript/actions/workflows/node.js.yml/badge.svg)](https://github.com/daidodo/TEMPLATE_TypeScript/actions)
+[![npm](https://img.shields.io/npm/v/@dozerg/project-manager.svg)](https://www.npmjs.com/package/@dozerg/project-manager)
+![Downloads](https://img.shields.io/npm/dm/@dozerg/project-manager.svg)
+[![Build Status](https://github.com/daidodo/project-manager/actions/workflows/node.js.yml/badge.svg)](https://github.com/daidodo/project-manager/actions)
 
 Template for TypeScript projects.
 
