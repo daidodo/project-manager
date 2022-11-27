@@ -10,7 +10,19 @@
     "url": "git+https://github.com/daidodo/project-manager.git"
   },
   "keywords": [
-    "project","manager","manage", "management"
+    "manage",
+    "project",
+    "manager",
+    "management",
+    "task",
+    "tasks",
+    "assignment",
+    "assignments",
+    "scheduling",
+    "critical",
+    "path",
+    "priority",
+    "list"
   ],
   "version": "0.0.1",
   "main": "dist/index.js",
@@ -95,5 +107,8 @@
     "typedoc": "^0.23.21",
     "typedoc-plugin-markdown": "^3.13.6",
     "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "@dozerg/condition": "^1.0.3"
   }
 }
