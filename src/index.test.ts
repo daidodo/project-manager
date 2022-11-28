@@ -27,7 +27,7 @@ describe('Suite', () => {
       expect(timelines).toBeDefined();
     });
   });
-  describe('Example 2', () => {
+  describe('With idle', () => {
     const tasks: Task[] = [
       { uuid: 'A', timeToDelivery: 1 },
       { uuid: 'B', timeToDelivery: 3 },
@@ -38,6 +38,23 @@ describe('Suite', () => {
       { uuid: 'G', timeToDelivery: 8, dependencies: ['E', 'F'] },
     ];
     const people: Person[] = [{ uuid: 'P1' }, { uuid: 'P2' }];
+    it('should pass the test', () => {
+      const map = assignTasks(tasks, people);
+      const timelines = toResourceMap(people, map);
+      expect(timelines).toBeDefined();
+    });
+  });
+  describe('With person start', () => {
+    const tasks: Task[] = [
+      { uuid: 'A', timeToDelivery: 1 },
+      { uuid: 'B', timeToDelivery: 3 },
+      { uuid: 'C', timeToDelivery: 1, dependencies: ['A'] },
+      { uuid: 'D', timeToDelivery: 9, dependencies: ['C'] },
+      { uuid: 'E', timeToDelivery: 4, dependencies: ['C', 'B'] },
+      { uuid: 'F', timeToDelivery: 5, dependencies: ['C', 'B'] },
+      { uuid: 'G', timeToDelivery: 8, dependencies: ['E', 'F'] },
+    ];
+    const people: Person[] = [{ uuid: 'P1' }, { uuid: 'P2', start: 3 }];
     it('should pass the test', () => {
       const map = assignTasks(tasks, people);
       const timelines = toResourceMap(people, map);
