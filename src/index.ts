@@ -1,5 +1,4 @@
 import {
-  assertIsNumber,
   assertNonNull,
   assertTrue,
 } from '@dozerg/condition';
@@ -24,19 +23,16 @@ export function assignTasks(tasks: Task[], people: Person[]) {
   const peopleExt = people.map(p => new PersonExt(p));
 
   for (; readyTasks.size > 0; ) {
-    // assign task to person
+    // find available person and task
     const person = calcNextPerson(peopleExt);
     const task = calcNextTask(readyTasks, person);
-    task.assignee = person;
-    task.start = Math.max(person.nextAvailability, task.earliestStart);
-    // update person availability
-    person.nextAvailability = task.start + task.timeToDelivery;
+    // assign task to person
+    assignTask(task, person);
     // remove task from ready tasks
     readyTasks.delete(task);
     // find ready tasks
     task.dependants?.forEach(t => {
       // update earliest start
-      t.earliestStart = Math.max(t.earliestStart, person.nextAvailability);
       if (t.isReadyToPick) readyTasks.add(t);
     });
   }
@@ -46,9 +42,9 @@ export function assignTasks(tasks: Task[], people: Person[]) {
 export function toResourceMap(people: Person[], tasks: Map<string, TaskExt>) {
   return people.map(person => {
     const timeline = [...tasks.values()]
-      .map(({ uuid, assignee, start, timeToDelivery }) => {
-        assertNonNull(assignee);
-        assertIsNumber(start);
+      .map(({ uuid, assignment, timeToDelivery }) => {
+        assertNonNull(assignment);
+        const { assignee, start } = assignment;
         return { uuid, assignee, start, timeToDelivery };
       })
       .filter(t => t.assignee.uuid === person.uuid)
@@ -85,4 +81,10 @@ function calcPriorityTask(tasks: TaskExt[]) {
 
 function calcNextPerson(people: PersonExt[]) {
   return people.reduce((r, p) => (p.nextAvailability < r.nextAvailability ? p : r));
+}
+
+function assignTask(task: TaskExt, person: PersonExt) {
+  const start = Math.max(person.nextAvailability, task.earliestStart);
+  const end = person.assign(task, start);
+  task.assign(person, start, end);
 }
