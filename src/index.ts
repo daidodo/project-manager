@@ -6,7 +6,6 @@ import {
 import {
   assertNonNull,
   assertTrue,
-  isNonNull,
 } from '@dozerg/condition';
 
 import TaskExt from './TaskExt';
@@ -45,39 +44,6 @@ export function toResourceMap(solution: Solution, people: Person[]) {
       }, Array<string>());
     return timeline;
   });
-}
-
-export function verifySolution(solution: Solution, tasks: Task[], people: Person[]) {
-  const { assignments, totalTime } = solution;
-  // Check totalTime
-  if (totalTime !== Math.max(...assignments.map(s => s.end))) return false;
-  // Check all tasks
-  if (assignments.length !== tasks.length) return false;
-  if (
-    tasks.some(t => {
-      // Has assignment
-      const a = assignments.find(a => a.taskId === t.uuid);
-      if (!a) return true;
-      // Deliver time is enough
-      if (a.end < a.start + t.timeToDelivery) return false;
-      // Person is known
-      if (!people.some(p => p.uuid === a.personId)) return true;
-      // Dependencies finsh first
-      const depEnds = t.dependencies
-        ?.map(id => assignments.find(a => a.taskId === id)?.end)
-        .filter(isNonNull);
-      const depEndMax = depEnds ? Math.max(...depEnds) : 0;
-      if (a.start < depEndMax) return false;
-
-      return false;
-    })
-  )
-    return false;
-  if (assignments.some(a => !people.some(p => p.uuid === a.personId)))
-    // People are known
-    return false;
-
-  return true;
 }
 
 export function assignTasks(tasks: Task[], people: Person[]) {

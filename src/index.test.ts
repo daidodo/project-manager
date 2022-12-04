@@ -1,12 +1,12 @@
 import {
   assignTasks,
   toResourceMap,
-  verifySolution,
 } from './';
 import {
   Person,
   Task,
 } from './types';
+import { verifySolution } from './verify';
 
 // https://www.youtube.com/watch?v=nKF9DjXfbuU&t=6s
 describe('Suite', () => {
