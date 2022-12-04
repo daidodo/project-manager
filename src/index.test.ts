@@ -1,6 +1,7 @@
 import {
   assignTasks,
   toResourceMap,
+  verifySolution,
 } from './';
 import {
   Person,
@@ -22,8 +23,9 @@ describe('Suite', () => {
     ];
     const people: Person[] = [{ uuid: 'P1' }, { uuid: 'P2' }];
     it('should pass the test', () => {
-      const map = assignTasks(tasks, people);
-      const timelines = toResourceMap(people, map);
+      const solution = assignTasks(tasks, people);
+      expect(verifySolution(solution, tasks, people)).toBeTruthy();
+      const timelines = toResourceMap(solution, people);
       expect(timelines).toBeDefined();
     });
   });
@@ -39,8 +41,9 @@ describe('Suite', () => {
     ];
     const people: Person[] = [{ uuid: 'P1' }, { uuid: 'P2' }];
     it('should pass the test', () => {
-      const map = assignTasks(tasks, people);
-      const timelines = toResourceMap(people, map);
+      const solution = assignTasks(tasks, people);
+      expect(verifySolution(solution, tasks, people)).toBeTruthy();
+      const timelines = toResourceMap(solution, people);
       expect(timelines).toBeDefined();
     });
   });
@@ -56,8 +59,9 @@ describe('Suite', () => {
     ];
     const people: Person[] = [{ uuid: 'P1' }, { uuid: 'P2', start: 3 }];
     it('should pass the test', () => {
-      const map = assignTasks(tasks, people);
-      const timelines = toResourceMap(people, map);
+      const solution = assignTasks(tasks, people);
+      expect(verifySolution(solution, tasks, people)).toBeTruthy();
+      const timelines = toResourceMap(solution, people);
       expect(timelines).toBeDefined();
     });
   });
