@@ -29,7 +29,8 @@ function genTasks(taskCount: number, options?: Options) {
     const uuid = genTaskId(i);
     const timeToDelivery = randomNumber(1, maxTaskEffort);
     const dependencies = genDeps(tasks, options);
-    tasks.push({ uuid, timeToDelivery, dependencies });
+    if (dependencies) tasks.push({ uuid, timeToDelivery, dependencies });
+    else tasks.push({ uuid, timeToDelivery });
   }
   return tasks;
 }
@@ -39,7 +40,7 @@ function genDeps(tasks: Task[], options?: Options) {
   const maxDependencies = Math.max(0, options?.maxDependencies ?? DEFAULT_OPTION.maxDependencies);
   const deps = randomNumber(0, maxDependencies);
   if (!deps) return undefined;
-  const ids = tasks.map(t => t.uuid);
+  const ids = tasks.map(t => t.uuid).slice(-Math.max(4, 2 * deps));
   if (deps >= ids.length) return ids;
   return shuffle(ids).slice(0, deps).sort();
 }
