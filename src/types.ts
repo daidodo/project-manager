@@ -19,4 +19,5 @@ interface Assignment {
 export interface Solution {
   readonly assignments: Assignment[];
   readonly totalTime: number;
+  readonly criticalTime?: number;
 }

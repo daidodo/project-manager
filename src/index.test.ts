@@ -67,7 +67,7 @@ describe('Suite', () => {
     });
   });
   describe('Random', () => {
-    const { tasks, people } = generateProject(20, 10, { lateStartsInPercentage: 50 });
+    const { tasks, people } = generateProject(10, 3);
     it('should pass the test', () => {
       const solution = assignTasks(tasks, people);
       expect(verifySolution(solution, tasks, people)).toBeTruthy();

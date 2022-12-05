@@ -15,7 +15,7 @@ import {
   Task,
 } from './types';
 
-interface Assignment {
+interface TaskAssign {
   readonly personId: string;
   readonly start: number;
   readonly end: number;
@@ -23,7 +23,7 @@ interface Assignment {
 
 interface Params {
   readyTasks: Set<TaskExt>;
-  assignments: Map<string, Assignment>; // task uuid => assignment
+  assignments: Map<string, TaskAssign>; // task uuid => assignment
   availability: Map<string, number>; // person uuid => availability
 }
 
@@ -46,14 +46,15 @@ export function toResourceMap(solution: Solution, people: Person[]) {
   });
 }
 
-export function assignTasks(tasks: Task[], people: Person[]) {
+export function assignTasks(tasks: Task[], people: Person[]): Solution {
   const tasksMap = createTasksMap(tasks);
+  const criticalTime = calcCriticalTime([...tasksMap.values()]);
   const readyTasks = Set(
     [...tasksMap.values()].filter(t => !t.dependencies || t.dependencies.length < 1),
   );
   const availability = Map(people.map(p => [p.uuid, p.start ?? 0]));
   const params: Params = { readyTasks, availability, assignments: Map() };
-  return calcBestSolution(people, tasksMap, params);
+  return { ...calcBestSolution(people, tasksMap, params), criticalTime };
 }
 
 function createTasksMap(tasks: Task[]) {
@@ -62,6 +63,10 @@ function createTasksMap(tasks: Task[]) {
       task.calcDependency(all);
     });
   });
+}
+
+function calcCriticalTime(tasks: TaskExt[]) {
+  return Math.max(...tasks.map(t => t.criticalTime));
 }
 
 function calcBestSolution(people: Person[], tasksMap: Map<string, TaskExt>, p: Params): Solution {
