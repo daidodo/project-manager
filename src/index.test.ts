@@ -2,6 +2,7 @@ import {
   assignTasks,
   toResourceMap,
 } from './';
+import { generateProject } from './generate';
 import {
   Person,
   Task,
@@ -58,6 +59,15 @@ describe('Suite', () => {
       { uuid: 'G', timeToDelivery: 8, dependencies: ['E', 'F'] },
     ];
     const people: Person[] = [{ uuid: 'P1' }, { uuid: 'P2', start: 3 }];
+    it('should pass the test', () => {
+      const solution = assignTasks(tasks, people);
+      expect(verifySolution(solution, tasks, people)).toBeTruthy();
+      const timelines = toResourceMap(solution, people);
+      expect(timelines).toBeDefined();
+    });
+  });
+  describe('Random', () => {
+    const { tasks, people } = generateProject(20, 10, { lateStartsInPercentage: 50 });
     it('should pass the test', () => {
       const solution = assignTasks(tasks, people);
       expect(verifySolution(solution, tasks, people)).toBeTruthy();
