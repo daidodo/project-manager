@@ -1,6 +1,6 @@
 ### TODO
 
-- Support holidays.
+- Support holidays (ooo).
 - Support leading time.
 - Support pre-assignment.
   - Single: A task must be done by a person.
