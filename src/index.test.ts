@@ -1,3 +1,4 @@
+/* eslint-disable jest/valid-title */
 /* eslint jest/no-conditional-expect: "off" */
 /* eslint @typescript-eslint/no-unused-vars: "off" */
 
@@ -7,13 +8,60 @@ import { assignTasks } from './';
 import { generateProject } from './generate';
 import { calcEfficiency } from './solution';
 import { toTimelineString } from './timeline';
+import {
+  Person,
+  Task,
+} from './types';
 import { verifySolution } from './verify';
 
-const RANDOM = true;
+interface Setting {
+  title: string;
+  tasks: Task[];
+  people: Person[];
+  totalTime: number;
+}
 
-function genTaskAndPeople() {
-  if (RANDOM) return generateProject(9, 2);
+describe('assignTasks', () => {
+  const examples = genExamples();
+  examples.forEach(({ title, tasks, people, totalTime }) =>
+    describe(title, () => {
+      it('should pass the test', () => {
+        const solution = assignTasks(tasks, people);
+        expect(verifySolution(solution, tasks, people)).toBeTruthy();
+        expect(solution.totalTime).toEqual(totalTime);
+      });
+    }),
+  );
+  describe('Random', () => {
+    const { tasks, people } = generateProject(9, 2);
+    console.log('tasks =', tasks);
+    console.log('people =', JSON.stringify(people, null, '  '));
+    it('should pass the test', () => {
+      const solution = assignTasks(tasks, people);
+      // console.log('solution: ', JSON.stringify(solution, null, '  '));
+      expect(verifySolution(solution, tasks, people)).toBeTruthy();
+      const { timeEfficiency, resourceEfficiency, neededDays, availableDays } = calcEfficiency(
+        solution,
+        tasks,
+        people,
+      );
+      if (isNumber(timeEfficiency))
+        console.log(
+          `Time efficiency = ${timeEfficiency}% (${solution.criticalTime}/${solution.totalTime})`,
+        );
+      console.log(`Resource efficiency = ${resourceEfficiency}% (${neededDays}/${availableDays})`);
+      const timelineString = toTimelineString(solution, people);
+      console.log('timelines =\n', timelineString);
+      expect(timelineString).toBeDefined();
+    });
+  });
+});
 
+function genExamples(): Setting[] {
+  return [examples_1()];
+}
+
+function examples_1(): Setting {
   const tasks = [
     { uuid: 'A', timeToDelivery: 1 },
     { uuid: 'B', timeToDelivery: 3, dependencies: ['A'] },
@@ -36,21 +84,12 @@ function genTaskAndPeople() {
     {
       uuid: 'P2',
       holidays: [
-        {
-          from: 0,
-          days: 2,
-        },
-        {
-          from: 15,
-          days: 2,
-        },
+        { from: 0, days: 2 },
+        { from: 15, days: 2 },
         21,
         27,
         29,
-        {
-          from: 31,
-          days: 2,
-        },
+        { from: 31, days: 2 },
         34,
         40,
         44,
@@ -58,29 +97,5 @@ function genTaskAndPeople() {
       ],
     },
   ];
-  return { tasks, people };
+  return { title: 'Example 1', tasks, people, totalTime: 27 };
 }
-
-describe('assignTasks', () => {
-  const { tasks, people } = genTaskAndPeople();
-  console.log('tasks =', tasks);
-  console.log('people =', JSON.stringify(people, null, '  '));
-  it('should pass the test', () => {
-    const solution = assignTasks(tasks, people);
-    // console.log('solution: ', JSON.stringify(solution, null, '  '));
-    expect(verifySolution(solution, tasks, people)).toBeTruthy();
-    const { timeEfficiency, resourceEfficiency, neededDays, availableDays } = calcEfficiency(
-      solution,
-      tasks,
-      people,
-    );
-    if (isNumber(timeEfficiency))
-      console.log(
-        `Time efficiency = ${timeEfficiency}% (${solution.criticalTime}/${solution.totalTime})`,
-      );
-    console.log(`Resource efficiency = ${resourceEfficiency}% (${neededDays}/${availableDays})`);
-    const timelineString = toTimelineString(solution, people);
-    console.log('timelines =\n', timelineString);
-    expect(timelineString).toBeDefined();
-  });
-});
