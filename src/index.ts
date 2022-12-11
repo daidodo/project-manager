@@ -93,11 +93,11 @@ function calcNextPerson(peopleMap: Map<string, PersonExt>, p: Params) {
   const [id, personStart] = peopleMap
     .map(person => {
       const taskId = p.personAssign.get(person.uuid)?.last();
-      if (!taskId) return person.calcAvailability(0);
+      if (!taskId) return person.calcNextAvailability(0);
       const assignment = p.taskAssign.get(taskId);
       assertNonNull(assignment);
       const nextStart = calcAssignmentEnd(assignment);
-      return person.calcAvailability(nextStart);
+      return person.calcNextAvailability(nextStart);
     })
     .toArray()
     .reduce((a, b) => (a[1] <= b[1] ? a : b));

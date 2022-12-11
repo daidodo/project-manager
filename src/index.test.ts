@@ -1,74 +1,86 @@
 /* eslint jest/no-conditional-expect: "off" */
 /* eslint @typescript-eslint/no-unused-vars: "off" */
 
+import { isNumber } from '@dozerg/condition';
+
 import { assignTasks } from './';
 import { generateProject } from './generate';
 import { calcEfficiency } from './solution';
 import { toTimelineString } from './timeline';
 import { verifySolution } from './verify';
 
-describe('assignTasks', () => {
-  /*
+const RANDOM = false;
+
+function genTaskAndPeople() {
+  if (RANDOM) return generateProject(12, 2);
+
   const tasks = [
-    { uuid: 'A', timeToDelivery: 5 },
-    { uuid: 'B', timeToDelivery: 5 },
-    { uuid: 'C', timeToDelivery: 5, dependencies: ['B'] },
-    { uuid: 'D', timeToDelivery: 3, dependencies: ['B'] },
-    { uuid: 'E', timeToDelivery: 5 },
+    { uuid: 'A', timeToDelivery: 1 },
+    { uuid: 'B', timeToDelivery: 3, dependencies: ['A'] },
+    { uuid: 'C', timeToDelivery: 2, dependencies: ['A', 'B'] },
+    { uuid: 'D', timeToDelivery: 5, dependencies: ['A', 'B', 'C'] },
+    // { uuid: 'E', timeToDelivery: 4, dependencies: ['A', 'C', 'D'] },
+    // { uuid: 'F', timeToDelivery: 2, dependencies: ['A', 'C', 'E'] },
+    // { uuid: 'G', timeToDelivery: 3 },
+    // { uuid: 'H', timeToDelivery: 3, dependencies: ['E', 'F'] },
+    // { uuid: 'I', timeToDelivery: 1, dependencies: ['D', 'G', 'H'] },
+    // { uuid: 'J', timeToDelivery: 2, dependencies: ['D', 'G', 'H'] },
+    // { uuid: 'K', timeToDelivery: 2, dependencies: ['J'] },
+    // { uuid: 'L', timeToDelivery: 3, dependencies: ['G', 'J', 'K'] },
   ];
   const people = [
     {
       uuid: 'P1',
-      holidays: [
-        0,
-        2,
-        8,
-        10,
-        16,
-        {
-          from: 29,
-          days: 3,
-        },
-        {
-          from: 35,
-          days: 2,
-        },
-        42,
-      ],
+      holidays: [6, 11, 51, 57, 59],
     },
     {
       uuid: 'P2',
       holidays: [
-        0,
-        2,
-        8,
-        13,
         {
-          from: 17,
+          from: 0,
           days: 2,
         },
-        25,
-        28,
-        30,
-        35,
-        43,
+        {
+          from: 15,
+          days: 2,
+        },
+        21,
+        27,
+        29,
+        {
+          from: 31,
+          days: 2,
+        },
+        34,
+        40,
+        44,
+        52,
       ],
     },
-  ]; //*/
-  describe('Random', () => {
-    const { tasks, people } = generateProject(12, 2);
-    console.log('tasks =', tasks);
-    console.log('people =', JSON.stringify(people, null, '  '));
-    it('should pass the test', () => {
-      const solution = assignTasks(tasks, people);
-      // console.log('solution: ', JSON.stringify(solution, null, '  '));
-      expect(verifySolution(solution, tasks, people)).toBeTruthy();
-      const efficiency = calcEfficiency(solution);
-      console.log(`efficiency = ${efficiency}% (${solution.criticalTime}/${solution.totalTime})`);
-      expect(efficiency).toBeDefined();
-      const timelineString = toTimelineString(solution, people);
-      console.log('timelines =\n', timelineString);
-      expect(timelineString).toBeDefined();
-    });
+  ];
+  return { tasks, people };
+}
+
+describe('assignTasks', () => {
+  const { tasks, people } = genTaskAndPeople();
+  console.log('tasks =', tasks);
+  console.log('people =', JSON.stringify(people, null, '  '));
+  it('should pass the test', () => {
+    const solution = assignTasks(tasks, people);
+    // console.log('solution: ', JSON.stringify(solution, null, '  '));
+    expect(verifySolution(solution, tasks, people)).toBeTruthy();
+    const { timeEfficiency, resourceEfficiency, neededDays, availableDays } = calcEfficiency(
+      solution,
+      tasks,
+      people,
+    );
+    if (isNumber(timeEfficiency))
+      console.log(
+        `Time efficiency = ${timeEfficiency}% (${solution.criticalTime}/${solution.totalTime})`,
+      );
+    console.log(`Resource efficiency = ${resourceEfficiency}% (${neededDays}/${availableDays})`);
+    const timelineString = toTimelineString(solution, people);
+    console.log('timelines =\n', timelineString);
+    expect(timelineString).toBeDefined();
   });
 });
