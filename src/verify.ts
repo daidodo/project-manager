@@ -1,15 +1,20 @@
-import { isNonNull } from '@dozerg/condition';
-
 import {
+  assertIsNumber,
+  isNonNull,
+} from '@dozerg/condition';
+
+import PersonExt from './PersonExt';
+import {
+  Assignment,
   Person,
   Solution,
   Task,
 } from './types';
 
 export function verifySolution(solution: Solution, tasks: Task[], people: Person[]) {
-  const { assignments, totalTime } = solution;
+  const { assignments } = solution;
   // Check totalTime
-  if (totalTime !== Math.max(...assignments.map(s => s.end))) return false;
+  if (!verifyTotalTime(solution)) return false;
   // Check tasks
   if (assignments.length !== tasks.length) return false;
   if (tasks.some(t => !verifyTask(t, solution, people))) return false;
@@ -19,35 +24,49 @@ export function verifySolution(solution: Solution, tasks: Task[], people: Person
   return true;
 }
 
+function verifyTotalTime(solution: Solution) {
+  const { assignments, totalTime } = solution;
+  const needTimes = assignments.map(a => nextStart(a));
+  return totalTime === Math.max(...needTimes);
+}
+
+function nextStart(assignment: Assignment) {
+  const [end] = assignment.workDays.slice(-1);
+  assertIsNumber(end);
+  return end + 1;
+}
+
 function verifyTask(task: Task, { assignments }: Solution, people: Person[]) {
   // Has assignment
   const assignment = assignments.find(a => a.taskId === task.uuid);
   if (!assignment) return false;
   // Deliver time is enough
-  if (assignment.end < assignment.start + task.timeToDelivery) return false;
+  if (task.timeToDelivery !== assignment.workDays.length) return false;
   // Assignee is known
   if (!people.some(p => p.uuid === assignment.personId)) return false;
   // Dependencies finsh first
   if (task.dependencies) {
     const depEnds = task.dependencies
-      .map(id => assignments.find(a => a.taskId === id)?.end)
-      .filter(isNonNull);
+      .map(id => assignments.find(a => a.taskId === id))
+      .filter(isNonNull)
+      .map(a => nextStart(a));
     if (depEnds.length !== task.dependencies.length) return false;
     const depEndMax = Math.max(...depEnds);
-    if (assignment.start < depEndMax) return false;
+    if (assignment.workDays[0] < depEndMax) return false;
   }
   return true;
 }
 
-function verifyPerson(person: Person, { assignments }: Solution) {
-  // No overlapped tasks
-  const tasks = assignments
+function verifyPerson(person: Person, solution: Solution) {
+  const assignments = solution.assignments
     .filter(a => a.personId === person.uuid)
-    .sort((a, b) => a.start - b.start);
-  let prevEnd = person.start ?? 0;
-  for (const task of tasks) {
-    if (task.start < prevEnd) return false;
-    prevEnd = task.end;
-  }
+    .sort((a, b) => a.workDays[0] - b.workDays[0]);
+  const personExt = new PersonExt(person);
+  const workDays = assignments.flatMap(a => a.workDays);
+  // No overlapped work days
+  const uniqueWorkDays = new Set(workDays);
+  if (uniqueWorkDays.size != workDays.length) return false;
+  // No works in holidays
+  if (workDays.some(day => personExt.isHoliday(day))) return false;
   return true;
 }

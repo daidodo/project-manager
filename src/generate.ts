@@ -1,17 +1,21 @@
 import genTaskId from 'excel-column-id';
 
-import { assertTrue } from '@dozerg/condition';
+import {
+  assertTrue,
+  isNumber,
+} from '@dozerg/condition';
 
 import {
+  Holiday,
   Person,
   Task,
 } from './types';
+import { sequence } from './utils';
 
 const DEFAULT_OPTION = {
   maxTaskEffort: 5,
   maxDependencies: 3,
-  lateStartsInPercentage: 0,
-  maxLateStartDaysInPercentage: 10,
+  maxHolidaysInPercentage: 50,
 };
 
 type Options = Partial<typeof DEFAULT_OPTION>;
@@ -22,7 +26,7 @@ export function generateProject(taskCount: number, peopleCount: number, options?
   return { tasks, people };
 }
 
-function genTasks(taskCount: number, options?: Options) {
+function genTasks(taskCount: number, options?: Options): Task[] {
   const maxTaskEffort = Math.max(1, options?.maxTaskEffort ?? DEFAULT_OPTION.maxTaskEffort);
   const tasks: Task[] = [];
   for (let i = 0; i < taskCount; ++i) {
@@ -45,35 +49,39 @@ function genDeps(tasks: Task[], options?: Options) {
   return shuffle(ids).slice(0, deps).sort();
 }
 
-function genPeople(peopleCount: number, tasks: Task[], options?: Options) {
+function genPeople(peopleCount: number, tasks: Task[], options?: Options): Person[] {
   const people: Person[] = [];
   for (let i = 1; i <= peopleCount; ++i) {
     const uuid = genPersonId(i, peopleCount);
     people.push({ uuid });
   }
-  const lateStartsInPercentage = Math.max(
-    0,
-    options?.lateStartsInPercentage ?? DEFAULT_OPTION.lateStartsInPercentage,
-  );
-  const lateStarts = Math.floor((peopleCount * lateStartsInPercentage) / 100);
-  return genLateStart(people, lateStarts, tasks, options);
+  return people.map(person => genHolidays(person, tasks, options));
 }
 
-function genLateStart(people: Person[], lateStarts: number, tasks: Task[], options?: Options) {
-  assertTrue(lateStarts <= people.length);
-  if (lateStarts < 1) return people;
-  const maxStartInPercentage = Math.max(
+function genHolidays(person: Person, tasks: Task[], options?: Options) {
+  const maxHolidaysInPercentage = Math.max(
     0,
-    options?.maxLateStartDaysInPercentage ?? DEFAULT_OPTION.maxLateStartDaysInPercentage,
+    options?.maxHolidaysInPercentage ?? DEFAULT_OPTION.maxHolidaysInPercentage,
   );
+  if (maxHolidaysInPercentage < 1) return person;
   const totalEfforts = tasks.map(t => t.timeToDelivery).reduce((a, b) => a + b);
-  const maxStart = Math.floor((totalEfforts * maxStartInPercentage) / 100);
-  if (lateStarts < people.length) shuffle(people);
-  for (let i = 0; i < lateStarts; ++i) {
-    const start = randomNumber(1, maxStart);
-    people[i] = { ...people[i], start };
-  }
-  return people.sort((a, b) => a.uuid.localeCompare(b.uuid));
+  const maxHolidays = Math.floor((totalEfforts * maxHolidaysInPercentage) / 100);
+  const holidayCount = randomNumber(0, maxHolidays);
+  if (holidayCount < 1) return person;
+  const days = sequence(0, totalEfforts * 2);
+  const holidayArray = [...shuffle(days).slice(0, holidayCount)].sort((a, b) => a - b);
+  const holidays = holidayArray.reduce<Holiday[]>((r, h) => {
+    if (r.length < 1) return [h];
+    const i = r.length - 1;
+    const last = r[i];
+    if (isNumber(last)) {
+      if (last + 1 === h) r[i] = { from: last, days: 2 };
+      else r.push(h);
+    } else if (last.from + last.days === h) r[i] = { ...last, days: last.days + 1 };
+    else r.push(h);
+    return r;
+  }, []);
+  return { ...person, holidays };
 }
 
 // Generate a random number in range [from, to].

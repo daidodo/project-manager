@@ -1,6 +1,8 @@
+export type Holiday = number | { from: number; days: number };
+
 export interface Person {
   readonly uuid: string;
-  readonly start?: number;
+  readonly holidays?: Holiday[];
 }
 
 export interface Task {
@@ -9,11 +11,10 @@ export interface Task {
   readonly dependencies?: string[];
 }
 
-interface Assignment {
+export interface Assignment {
   readonly taskId: string;
   readonly personId: string;
-  readonly start: number;
-  readonly end: number;
+  readonly workDays: number[];
 }
 
 export interface Solution {
