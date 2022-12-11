@@ -10,6 +10,7 @@ import { calcEfficiency } from './solution';
 import { toTimelineString } from './timeline';
 import {
   Person,
+  Solution,
   Task,
 } from './types';
 import { verifySolution } from './verify';
@@ -19,21 +20,24 @@ interface Setting {
   tasks: Task[];
   people: Person[];
   totalTime: number;
+  verify?: (solution: Solution) => boolean;
 }
 
 describe('assignTasks', () => {
   const examples = genExamples();
-  examples.forEach(({ title, tasks, people, totalTime }) =>
+  examples.forEach(({ title, tasks, people, totalTime, verify }) =>
     describe(title, () => {
       it('should pass the test', () => {
         const solution = assignTasks(tasks, people);
         expect(verifySolution(solution, tasks, people)).toBeTruthy();
         expect(solution.totalTime).toEqual(totalTime);
+        if (verify) expect(verify(solution)).toBeTruthy();
       });
     }),
   );
   describe('Random', () => {
-    const { tasks, people } = generateProject(9, 2);
+    const RANDOM = true;
+    const { tasks, people } = RANDOM ? generateProject(9, 2) : example_2();
     console.log('tasks =', tasks);
     console.log('people =', JSON.stringify(people, null, '  '));
     it('should pass the test', () => {
@@ -58,10 +62,10 @@ describe('assignTasks', () => {
 });
 
 function genExamples(): Setting[] {
-  return [examples_1()];
+  return [examples_1(), example_2()];
 }
 
-function examples_1(): Setting {
+function examples_1() {
   const tasks = [
     { uuid: 'A', timeToDelivery: 1 },
     { uuid: 'B', timeToDelivery: 3, dependencies: ['A'] },
@@ -98,4 +102,54 @@ function examples_1(): Setting {
     },
   ];
   return { title: 'Example 1', tasks, people, totalTime: 27 };
+}
+
+function example_2(): Setting {
+  const tasks = [
+    { uuid: 'A', timeToDelivery: 5 },
+    { uuid: 'B', timeToDelivery: 4, dependencies: ['A'] },
+    { uuid: 'C', timeToDelivery: 3, dependencies: ['A'] },
+    { uuid: 'D', timeToDelivery: 2, dependencies: ['C'] },
+    { uuid: 'E', timeToDelivery: 4, dependencies: ['B'] },
+    { uuid: 'F', timeToDelivery: 1, dependencies: ['B', 'D'] },
+    { uuid: 'G', timeToDelivery: 2 },
+    { uuid: 'H', timeToDelivery: 3, dependencies: ['D', 'E'] },
+    { uuid: 'I', timeToDelivery: 3, dependencies: ['F', 'H'] },
+  ];
+  const people = [
+    {
+      uuid: 'P1',
+      holidays: [
+        2,
+        17,
+        24,
+        { from: 27, days: 3 },
+        33,
+        35,
+        { from: 39, days: 2 },
+        46,
+        { from: 48, days: 2 },
+      ],
+    },
+    {
+      uuid: 'P2',
+      holidays: [
+        { from: 2, days: 2 },
+        { from: 16, days: 2 },
+        20,
+        24,
+        { from: 29, days: 2 },
+        44,
+        50,
+        53,
+      ],
+    },
+  ];
+  return {
+    title: 'Example 2',
+    tasks,
+    people,
+    totalTime: 21,
+    verify: solution => solution.assignments.find(a => a.taskId === 'G')?.workDays[0] === 0,
+  };
 }

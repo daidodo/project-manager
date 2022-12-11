@@ -22,3 +22,11 @@ export function calcEfficiency(solution: Solution, tasks: Task[], people: Person
   const resourceEfficiency = Math.floor((neededDays * 100) / availableDays);
   return { timeEfficiency, resourceEfficiency, neededDays, availableDays };
 }
+
+export function compareSolutions(a: Solution, b: Solution) {
+  if (a.totalTime !== b.totalTime) return a.totalTime - b.totalTime;
+  // Tasks finish ASAP
+  const endSumA = a.assignments.map(s => s.workDays.slice(-1)[0]).reduce((i, j) => i + j);
+  const endSumB = b.assignments.map(s => s.workDays.slice(-1)[0]).reduce((i, j) => i + j);
+  return endSumA - endSumB;
+}

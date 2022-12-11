@@ -7,6 +7,7 @@ import {
 import { assertNonNull } from '@dozerg/condition';
 
 import PersonExt from './PersonExt';
+import { compareSolutions } from './solution';
 import TaskExt from './TaskExt';
 import {
   Person,
@@ -79,7 +80,7 @@ function calcBestSolution(
       return calcBestSolution(peopleMap, tasksMap, { readyTasks, taskAssign, personAssign });
     }),
   );
-  return solutions.reduce((a, b) => (a.totalTime > b.totalTime ? b : a));
+  return solutions.reduce((a, b) => (compareSolutions(a, b) <= 0 ? a : b));
 }
 
 function generateSolution(p: Params): Solution {
