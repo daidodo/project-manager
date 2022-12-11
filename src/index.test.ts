@@ -9,24 +9,24 @@ import { calcEfficiency } from './solution';
 import { toTimelineString } from './timeline';
 import { verifySolution } from './verify';
 
-const RANDOM = false;
+const RANDOM = true;
 
 function genTaskAndPeople() {
-  if (RANDOM) return generateProject(12, 2);
+  if (RANDOM) return generateProject(9, 2);
 
   const tasks = [
     { uuid: 'A', timeToDelivery: 1 },
     { uuid: 'B', timeToDelivery: 3, dependencies: ['A'] },
     { uuid: 'C', timeToDelivery: 2, dependencies: ['A', 'B'] },
     { uuid: 'D', timeToDelivery: 5, dependencies: ['A', 'B', 'C'] },
-    // { uuid: 'E', timeToDelivery: 4, dependencies: ['A', 'C', 'D'] },
-    // { uuid: 'F', timeToDelivery: 2, dependencies: ['A', 'C', 'E'] },
-    // { uuid: 'G', timeToDelivery: 3 },
-    // { uuid: 'H', timeToDelivery: 3, dependencies: ['E', 'F'] },
-    // { uuid: 'I', timeToDelivery: 1, dependencies: ['D', 'G', 'H'] },
-    // { uuid: 'J', timeToDelivery: 2, dependencies: ['D', 'G', 'H'] },
-    // { uuid: 'K', timeToDelivery: 2, dependencies: ['J'] },
-    // { uuid: 'L', timeToDelivery: 3, dependencies: ['G', 'J', 'K'] },
+    { uuid: 'E', timeToDelivery: 4, dependencies: ['A', 'C', 'D'] },
+    { uuid: 'F', timeToDelivery: 2, dependencies: ['A', 'C', 'E'] },
+    { uuid: 'G', timeToDelivery: 3 },
+    { uuid: 'H', timeToDelivery: 3, dependencies: ['E', 'F'] },
+    { uuid: 'I', timeToDelivery: 1, dependencies: ['D', 'G', 'H'] },
+    { uuid: 'J', timeToDelivery: 2, dependencies: ['D', 'G', 'H'] },
+    { uuid: 'K', timeToDelivery: 2, dependencies: ['J'] },
+    { uuid: 'L', timeToDelivery: 3, dependencies: ['G', 'J', 'K'] },
   ];
   const people = [
     {

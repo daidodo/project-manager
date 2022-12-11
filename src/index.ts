@@ -59,22 +59,26 @@ function calcBestSolution(
   p: Params,
 ): Solution {
   if (p.readyTasks.size < 1) return generateSolution(p);
-  const { person, personStart } = calcNextPerson(peopleMap, p);
+  const peopleAvailability = calcPeopleAvailability(peopleMap, p);
   const tasks = calcNextTasks(p);
-  const solutions = tasks.map(task => {
-    const start = calcTaskStart(task, personStart, p);
-    const workDays = person.calcWorkDays(start, task.timeToDelivery);
-    const taskAssign = p.taskAssign.set(task.uuid, { personId: person.uuid, workDays });
-    const personAssign = p.personAssign.update(person.uuid, List(), tasks => tasks.push(task.uuid));
-    const readyTasks = p.readyTasks.withMutations(s => {
-      s.delete(task);
-      task.dependants?.forEach(t => {
-        const ready = !t.dependencies?.some(d => !taskAssign.has(d.uuid));
-        if (ready) s.add(t);
+  const solutions = peopleAvailability.flatMap(({ person, personStart }) =>
+    tasks.map(task => {
+      const start = calcTaskStart(task, personStart, p);
+      const workDays = person.calcWorkDays(start, task.timeToDelivery);
+      const taskAssign = p.taskAssign.set(task.uuid, { personId: person.uuid, workDays });
+      const personAssign = p.personAssign.update(person.uuid, List(), tasks =>
+        tasks.push(task.uuid),
+      );
+      const readyTasks = p.readyTasks.withMutations(s => {
+        s.delete(task);
+        task.dependants?.forEach(t => {
+          const ready = !t.dependencies?.some(d => !taskAssign.has(d.uuid));
+          if (ready) s.add(t);
+        });
       });
-    });
-    return calcBestSolution(peopleMap, tasksMap, { readyTasks, taskAssign, personAssign });
-  });
+      return calcBestSolution(peopleMap, tasksMap, { readyTasks, taskAssign, personAssign });
+    }),
+  );
   return solutions.reduce((a, b) => (a.totalTime > b.totalTime ? b : a));
 }
 
@@ -89,26 +93,25 @@ function generateSolution(p: Params): Solution {
   return { totalTime, assignments };
 }
 
-function calcNextPerson(peopleMap: Map<string, PersonExt>, p: Params) {
-  const [id, personStart] = peopleMap
-    .map(person => {
-      const taskId = p.personAssign.get(person.uuid)?.last();
-      if (!taskId) return person.calcNextAvailability(0);
-      const assignment = p.taskAssign.get(taskId);
-      assertNonNull(assignment);
-      const nextStart = calcAssignmentEnd(assignment);
-      return person.calcNextAvailability(nextStart);
-    })
-    .toArray()
-    .reduce((a, b) => (a[1] <= b[1] ? a : b));
-  const person = peopleMap.find(p => p.uuid === id);
-  assertNonNull(person);
-  return { person, personStart };
+function calcPeopleAvailability(peopleMap: Map<string, PersonExt>, p: Params) {
+  return peopleMap.toArray().map(([_, person]) => ({
+    person,
+    personStart: calcPersonAvailability(person, p),
+  }));
+}
+
+function calcPersonAvailability(person: PersonExt, p: Params) {
+  const taskId = p.personAssign.get(person.uuid)?.last();
+  if (!taskId) return person.calcNextAvailability(0);
+  const assignment = p.taskAssign.get(taskId);
+  assertNonNull(assignment);
+  const nextStart = calcAssignmentEnd(assignment);
+  return person.calcNextAvailability(nextStart);
 }
 
 function calcNextTasks(p: Params) {
   // TODO
-  return p.readyTasks;
+  return p.readyTasks.toArray();
 }
 
 function calcTaskStart(task: TaskExt, personStart: number, p: Params) {
