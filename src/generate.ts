@@ -31,10 +31,10 @@ function genTasks(taskCount: number, options?: Options): Task[] {
   const tasks: Task[] = [];
   for (let i = 0; i < taskCount; ++i) {
     const uuid = genTaskId(i);
-    const timeToDelivery = randomNumber(1, maxTaskEffort);
+    const effort = randomNumber(1, maxTaskEffort);
     const dependencies = genDeps(tasks, options);
-    if (dependencies) tasks.push({ uuid, timeToDelivery, dependencies });
-    else tasks.push({ uuid, timeToDelivery });
+    if (dependencies) tasks.push({ uuid, effort, dependencies });
+    else tasks.push({ uuid, effort });
   }
   return tasks;
 }
@@ -64,7 +64,7 @@ function genHolidays(person: Person, tasks: Task[], options?: Options) {
     options?.maxHolidaysInPercentage ?? DEFAULT_OPTION.maxHolidaysInPercentage,
   );
   if (maxHolidaysInPercentage < 1) return person;
-  const totalEfforts = tasks.map(t => t.timeToDelivery).reduce((a, b) => a + b);
+  const totalEfforts = tasks.map(t => t.effort).reduce((a, b) => a + b);
   const maxHolidays = Math.floor((totalEfforts * maxHolidaysInPercentage) / 100);
   const holidayCount = randomNumber(0, maxHolidays);
   if (holidayCount < 1) return person;

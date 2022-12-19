@@ -15,8 +15,8 @@ export default class TaskExt {
     return this.details_.uuid;
   }
 
-  get timeToDelivery() {
-    return this.details_.timeToDelivery;
+  get effort() {
+    return this.details_.effort;
   }
 
   get dependencies() {
@@ -30,7 +30,7 @@ export default class TaskExt {
   get criticalTime() {
     if (this.criticalTime_ < 0) {
       const base = this.dependants?.reduce((r, d) => Math.max(r, d.criticalTime), 0);
-      this.criticalTime_ = this.details_.timeToDelivery + (base ?? 0);
+      this.criticalTime_ = this.details_.effort + (base ?? 0);
     }
     return this.criticalTime_;
   }

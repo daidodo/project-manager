@@ -65,7 +65,7 @@ function calcBestSolution(
   const solutions = peopleAvailability.flatMap(({ person, personStart }) =>
     tasks.map(task => {
       const start = calcTaskStart(task, personStart, p);
-      const workDays = person.calcWorkDays(start, task.timeToDelivery);
+      const workDays = person.calcWorkDays(start, task.effort);
       const taskAssign = p.taskAssign.set(task.uuid, { personId: person.uuid, workDays });
       const personAssign = p.personAssign.update(person.uuid, List(), tasks =>
         tasks.push(task.uuid),

@@ -12,7 +12,7 @@ export function calcEfficiency(solution: Solution, tasks: Task[], people: Person
   const timeEfficiency = isNumber(criticalTime)
     ? Math.floor((criticalTime * 100) / totalTime)
     : undefined;
-  const neededDays = tasks.map(t => t.timeToDelivery).reduce((a, b) => a + b);
+  const neededDays = tasks.map(t => t.effort).reduce((a, b) => a + b);
   const availableDays = people
     .map(p => {
       const person = new PersonExt(p);

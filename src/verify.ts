@@ -41,7 +41,7 @@ function verifyTask(task: Task, { assignments }: Solution, people: Person[]) {
   const assignment = assignments.find(a => a.taskId === task.uuid);
   if (!assignment) return false;
   // Deliver time is enough
-  if (task.timeToDelivery !== assignment.workDays.length) return false;
+  if (task.effort !== assignment.workDays.length) return false;
   // Assignee is known
   if (!people.some(p => p.uuid === assignment.personId)) return false;
   // Dependencies finsh first

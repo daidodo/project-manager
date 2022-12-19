@@ -7,7 +7,7 @@ export interface Person {
 
 export interface Task {
   readonly uuid: string;
-  readonly timeToDelivery: number;
+  readonly effort: number;
   readonly dependencies?: string[];
 }
 

@@ -67,18 +67,18 @@ function genExamples(): Setting[] {
 
 function examples_1() {
   const tasks = [
-    { uuid: 'A', timeToDelivery: 1 },
-    { uuid: 'B', timeToDelivery: 3, dependencies: ['A'] },
-    { uuid: 'C', timeToDelivery: 2, dependencies: ['A', 'B'] },
-    { uuid: 'D', timeToDelivery: 5, dependencies: ['A', 'B', 'C'] },
-    { uuid: 'E', timeToDelivery: 4, dependencies: ['A', 'C', 'D'] },
-    { uuid: 'F', timeToDelivery: 2, dependencies: ['A', 'C', 'E'] },
-    { uuid: 'G', timeToDelivery: 3 },
-    { uuid: 'H', timeToDelivery: 3, dependencies: ['E', 'F'] },
-    { uuid: 'I', timeToDelivery: 1, dependencies: ['D', 'G', 'H'] },
-    { uuid: 'J', timeToDelivery: 2, dependencies: ['D', 'G', 'H'] },
-    { uuid: 'K', timeToDelivery: 2, dependencies: ['J'] },
-    { uuid: 'L', timeToDelivery: 3, dependencies: ['G', 'J', 'K'] },
+    { uuid: 'A', effort: 1 },
+    { uuid: 'B', effort: 3, dependencies: ['A'] },
+    { uuid: 'C', effort: 2, dependencies: ['A', 'B'] },
+    { uuid: 'D', effort: 5, dependencies: ['A', 'B', 'C'] },
+    { uuid: 'E', effort: 4, dependencies: ['A', 'C', 'D'] },
+    { uuid: 'F', effort: 2, dependencies: ['A', 'C', 'E'] },
+    { uuid: 'G', effort: 3 },
+    { uuid: 'H', effort: 3, dependencies: ['E', 'F'] },
+    { uuid: 'I', effort: 1, dependencies: ['D', 'G', 'H'] },
+    { uuid: 'J', effort: 2, dependencies: ['D', 'G', 'H'] },
+    { uuid: 'K', effort: 2, dependencies: ['J'] },
+    { uuid: 'L', effort: 3, dependencies: ['G', 'J', 'K'] },
   ];
   const people = [
     {
@@ -106,15 +106,15 @@ function examples_1() {
 
 function example_2(): Setting {
   const tasks = [
-    { uuid: 'A', timeToDelivery: 5 },
-    { uuid: 'B', timeToDelivery: 4, dependencies: ['A'] },
-    { uuid: 'C', timeToDelivery: 3, dependencies: ['A'] },
-    { uuid: 'D', timeToDelivery: 2, dependencies: ['C'] },
-    { uuid: 'E', timeToDelivery: 4, dependencies: ['B'] },
-    { uuid: 'F', timeToDelivery: 1, dependencies: ['B', 'D'] },
-    { uuid: 'G', timeToDelivery: 2 },
-    { uuid: 'H', timeToDelivery: 3, dependencies: ['D', 'E'] },
-    { uuid: 'I', timeToDelivery: 3, dependencies: ['F', 'H'] },
+    { uuid: 'A', effort: 5 },
+    { uuid: 'B', effort: 4, dependencies: ['A'] },
+    { uuid: 'C', effort: 3, dependencies: ['A'] },
+    { uuid: 'D', effort: 2, dependencies: ['C'] },
+    { uuid: 'E', effort: 4, dependencies: ['B'] },
+    { uuid: 'F', effort: 1, dependencies: ['B', 'D'] },
+    { uuid: 'G', effort: 2 },
+    { uuid: 'H', effort: 3, dependencies: ['D', 'E'] },
+    { uuid: 'I', effort: 3, dependencies: ['F', 'H'] },
   ];
   const people = [
     {
