@@ -1,5 +1,11 @@
 export type Holiday = number | { from: number; days: number };
 
+export type DependsOn = 'delivery' | 'effort';
+
+export const DEFAULT_DEPENDS_ON: DependsOn = 'delivery';
+
+export type Dependency = string | { uuid: string; dependsOn: DependsOn };
+
 export interface Person {
   readonly uuid: string;
   readonly holidays?: Holiday[];
@@ -8,7 +14,8 @@ export interface Person {
 export interface Task {
   readonly uuid: string;
   readonly effort: number;
-  readonly dependencies?: string[];
+  readonly leadTime?: number;
+  readonly dependencies?: Dependency[];
 }
 
 export interface Assignment {
@@ -19,6 +26,7 @@ export interface Assignment {
 
 export interface Solution {
   readonly assignments: Assignment[];
-  readonly totalTime: number;
-  readonly criticalTime?: number;
+  readonly totalWorkDays: number;
+  readonly deliveryTime: number;
+  readonly criticalTime: number;
 }

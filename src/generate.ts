@@ -6,6 +6,7 @@ import {
 } from '@dozerg/condition';
 
 import {
+  Dependency,
   Holiday,
   Person,
   Task,
@@ -14,6 +15,7 @@ import { sequence } from './utils';
 
 const DEFAULT_OPTION = {
   maxTaskEffort: 5,
+  maxLeadTime: 5,
   maxDependencies: 3,
   maxHolidaysInPercentage: 50,
 };
@@ -28,25 +30,43 @@ export function generateProject(taskCount: number, peopleCount: number, options?
 
 function genTasks(taskCount: number, options?: Options): Task[] {
   const maxTaskEffort = Math.max(1, options?.maxTaskEffort ?? DEFAULT_OPTION.maxTaskEffort);
+  const maxLeadTime = Math.max(1, options?.maxLeadTime ?? DEFAULT_OPTION.maxLeadTime);
   const tasks: Task[] = [];
   for (let i = 0; i < taskCount; ++i) {
     const uuid = genTaskId(i);
     const effort = randomNumber(1, maxTaskEffort);
+    const leadTime = randomNumber(0, maxLeadTime);
     const dependencies = genDeps(tasks, options);
-    if (dependencies) tasks.push({ uuid, effort, dependencies });
-    else tasks.push({ uuid, effort });
+    tasks.push({
+      uuid,
+      effort,
+      ...(leadTime > 0 ? { leadTime } : {}),
+      ...(dependencies ? { dependencies } : {}),
+    });
   }
   return tasks;
 }
 
-function genDeps(tasks: Task[], options?: Options) {
+function genDeps(tasks: Task[], options?: Options): Dependency[] | undefined {
+  const ids = genDepIds(tasks, options);
+  if (!ids) return undefined;
+  const e = randomNumber(0, ids.length);
+  if (e < 1) return ids;
+  const eids = new Set(shuffle([...ids]).slice(0, e));
+  return ids.map(uuid => {
+    if (eids.has(uuid)) return { uuid, dependsOn: 'effort' };
+    return uuid;
+  });
+}
+
+function genDepIds(tasks: Task[], options?: Options) {
   if (tasks.length < 1) return undefined;
   const maxDependencies = Math.max(0, options?.maxDependencies ?? DEFAULT_OPTION.maxDependencies);
   const deps = randomNumber(0, maxDependencies);
   if (!deps) return undefined;
-  const ids = tasks.map(t => t.uuid).slice(-Math.max(4, 2 * deps));
-  if (deps >= ids.length) return ids;
-  return shuffle(ids).slice(0, deps).sort();
+  const allIds = tasks.map(t => t.uuid).slice(-Math.max(4, 2 * deps));
+  if (deps >= allIds.length) return allIds;
+  return shuffle(allIds).slice(0, deps).sort();
 }
 
 function genPeople(peopleCount: number, tasks: Task[], options?: Options): Person[] {

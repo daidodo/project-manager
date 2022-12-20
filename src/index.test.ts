@@ -19,26 +19,26 @@ interface Setting {
   title: string;
   tasks: Task[];
   people: Person[];
-  totalTime: number;
+  deliveryTime: number;
   verify?: (solution: Solution) => boolean;
 }
 
 describe('assignTasks', () => {
   const examples = genExamples();
-  examples.forEach(({ title, tasks, people, totalTime, verify }) =>
+  examples.forEach(({ title, tasks, people, deliveryTime, verify }) =>
     describe(title, () => {
       it('should pass the test', () => {
         const solution = assignTasks(tasks, people);
         expect(verifySolution(solution, tasks, people)).toBeTruthy();
-        expect(solution.totalTime).toEqual(totalTime);
+        expect(solution.deliveryTime).toEqual(deliveryTime);
         if (verify) expect(verify(solution)).toBeTruthy();
       });
     }),
   );
   describe('Random', () => {
     const RANDOM = true;
-    const { tasks, people } = RANDOM ? generateProject(9, 2) : example_2();
-    console.log('tasks =', tasks);
+    const { tasks, people, verify } = RANDOM ? (generateProject(8, 2) as Setting) : example_3();
+    console.log('tasks =', JSON.stringify(tasks, null, '  '));
     console.log('people =', JSON.stringify(people, null, '  '));
     it('should pass the test', () => {
       const solution = assignTasks(tasks, people);
@@ -51,18 +51,18 @@ describe('assignTasks', () => {
       );
       if (isNumber(timeEfficiency))
         console.log(
-          `Time efficiency = ${timeEfficiency}% (${solution.criticalTime}/${solution.totalTime})`,
+          `Time efficiency = ${timeEfficiency}% (${solution.criticalTime}/${solution.deliveryTime})`,
         );
       console.log(`Resource efficiency = ${resourceEfficiency}% (${neededDays}/${availableDays})`);
-      const timelineString = toTimelineString(solution, people);
-      console.log('timelines =\n', timelineString);
-      expect(timelineString).toBeDefined();
+      const timelineString = toTimelineString(solution, tasks, people);
+      console.log(timelineString);
+      if (verify) expect(verify(solution)).toBeTruthy();
     });
   });
 });
 
 function genExamples(): Setting[] {
-  return [examples_1(), example_2()];
+  return [examples_1(), example_2(), example_3()];
 }
 
 function examples_1() {
@@ -101,7 +101,7 @@ function examples_1() {
       ],
     },
   ];
-  return { title: 'Example 1', tasks, people, totalTime: 27 };
+  return { title: 'Example 1', tasks, people, deliveryTime: 27 };
 }
 
 function example_2(): Setting {
@@ -149,7 +149,42 @@ function example_2(): Setting {
     title: 'Example 2',
     tasks,
     people,
-    totalTime: 21,
+    deliveryTime: 21,
     verify: solution => solution.assignments.find(a => a.taskId === 'G')?.workDays[0] === 0,
+  };
+}
+
+function example_3(): Setting {
+  const tasks = [
+    { uuid: 'A', effort: 2, leadTime: 4 },
+    { uuid: 'B', effort: 4, leadTime: 3, dependencies: ['A'] },
+    { uuid: 'C', effort: 3, dependencies: ['A'] },
+    {
+      uuid: 'D',
+      effort: 4,
+      leadTime: 3,
+      dependencies: ['A', 'B', 'C'],
+    },
+    { uuid: 'E', effort: 3, leadTime: 5 },
+    { uuid: 'F', effort: 3, leadTime: 4, dependencies: ['C', 'E'] },
+    { uuid: 'G', effort: 1, leadTime: 3 },
+    { uuid: 'H', effort: 1, leadTime: 4 },
+  ];
+  const people = [
+    {
+      uuid: 'P1',
+      holidays: [19, 21, 28, 35],
+    },
+    {
+      uuid: 'P2',
+      holidays: [14, 19, 26, 32],
+    },
+  ];
+  return {
+    title: 'Example 3',
+    tasks,
+    people,
+    deliveryTime: 20,
+    verify: solution => solution.criticalTime === 20,
   };
 }

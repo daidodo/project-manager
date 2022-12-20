@@ -32,12 +32,12 @@ export default class PersonExt {
     return start;
   }
 
-  calcWorkDays(start: number, timeToDelivery: number) {
-    if (!this.holidays) return sequence(start, timeToDelivery);
+  calcWorkDays(start: number, effort: number) {
+    if (!this.holidays) return sequence(start, effort);
     let i = firstIndex(this.holidays, v => start <= v);
-    if (i < 0) return sequence(start, timeToDelivery);
+    if (i < 0) return sequence(start, effort);
     const r = [];
-    for (; timeToDelivery > 0; --timeToDelivery, ++start) {
+    for (; effort > 0; --effort, ++start) {
       for (; i < this.holidays.length && this.holidays[i] === start; ++i, ++start);
       r.push(start);
     }

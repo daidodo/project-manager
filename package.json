@@ -111,6 +111,7 @@
   },
   "dependencies": {
     "@dozerg/condition": "^1.0.3",
+    "@dozerg/merge-options": "^1.0.4",
     "bsearch": "^1.0.0",
     "immutable": "^4.1.0"
   }

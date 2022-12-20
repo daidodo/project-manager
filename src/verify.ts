@@ -1,56 +1,65 @@
-import {
-  assertIsNumber,
-  isNonNull,
-} from '@dozerg/condition';
+import { assertNonNull } from '@dozerg/condition';
 
 import PersonExt from './PersonExt';
 import {
-  Assignment,
+  DEFAULT_DEPENDS_ON,
   Person,
   Solution,
   Task,
 } from './types';
+import { calcNextWorkDay } from './utils';
 
 export function verifySolution(solution: Solution, tasks: Task[], people: Person[]) {
   const { assignments } = solution;
-  // Check totalTime
-  if (!verifyTotalTime(solution)) return false;
+  // Check stats
+  if (!verifyStats(solution, tasks)) return false;
   // Check tasks
   if (assignments.length !== tasks.length) return false;
-  if (tasks.some(t => !verifyTask(t, solution, people))) return false;
+  if (tasks.some(t => !verifyTask(t, solution, tasks, people))) return false;
   // Check people
   if (people.some(p => !verifyPerson(p, solution))) return false;
 
   return true;
 }
 
-function verifyTotalTime(solution: Solution) {
-  const { assignments, totalTime } = solution;
-  const needTimes = assignments.map(a => nextStart(a));
-  return totalTime === Math.max(...needTimes);
+function verifyStats(solution: Solution, tasks: Task[]) {
+  const { assignments, totalWorkDays, deliveryTime } = solution;
+  // No. of work days is correct
+  const workDays = assignments.reduce((r, a) => Math.max(r, calcNextWorkDay(a.workDays)), 0);
+  if (workDays !== totalWorkDays) return false;
+  // Delivery days is correct
+  const delivery = assignments.reduce((r, a) => {
+    const task = tasks.find(t => t.uuid === a.taskId);
+    assertNonNull(task);
+    const d = calcNextWorkDay(a.workDays) + (task.leadTime ?? 0);
+    return Math.max(r, d);
+  }, 0);
+  return delivery === deliveryTime;
 }
 
-function nextStart(assignment: Assignment) {
-  const [end] = assignment.workDays.slice(-1);
-  assertIsNumber(end);
-  return end + 1;
-}
-
-function verifyTask(task: Task, { assignments }: Solution, people: Person[]) {
+function verifyTask(task: Task, { assignments }: Solution, tasks: Task[], people: Person[]) {
   // Has assignment
   const assignment = assignments.find(a => a.taskId === task.uuid);
   if (!assignment) return false;
-  // Deliver time is enough
+  // Work days is enough
   if (task.effort !== assignment.workDays.length) return false;
   // Assignee is known
   if (!people.some(p => p.uuid === assignment.personId)) return false;
-  // Dependencies finsh first
+  // Check dependencies
   if (task.dependencies) {
-    const depEnds = task.dependencies
-      .map(id => assignments.find(a => a.taskId === id))
-      .filter(isNonNull)
-      .map(a => nextStart(a));
-    if (depEnds.length !== task.dependencies.length) return false;
+    const depEnds = task.dependencies.map(d => {
+      const { uuid, dependsOn } =
+        typeof d === 'string' ? { uuid: d, dependsOn: DEFAULT_DEPENDS_ON } : d;
+      const assigment = assignments.find(a => a.taskId === uuid);
+      assertNonNull(assigment);
+      let end = calcNextWorkDay(assigment.workDays);
+      if (dependsOn === 'delivery') {
+        const depTask = tasks.find(t => t.uuid === uuid);
+        assertNonNull(depTask);
+        end += depTask.leadTime ?? 0;
+      }
+      return end;
+    });
     const depEndMax = Math.max(...depEnds);
     if (assignment.workDays[0] < depEndMax) return false;
   }
