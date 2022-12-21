@@ -6,6 +6,8 @@
 - Support ramp up time.
 - Support catchup time after holidays.
 - Support milestones.
+- Support half day effort.
+- Support person efficiency percentage.
 
 ### DONE
 

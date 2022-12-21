@@ -1,4 +1,4 @@
-export type Holiday = number | { from: number; days: number };
+export type Day = number | { from: number; days: number };
 
 export type DependsOn = 'delivery' | 'effort';
 
@@ -8,7 +8,7 @@ export type Dependency = string | { uuid: string; dependsOn: DependsOn };
 
 export interface Person {
   readonly uuid: string;
-  readonly holidays?: Holiday[];
+  readonly holidays?: Day[];
 }
 
 export interface Task {

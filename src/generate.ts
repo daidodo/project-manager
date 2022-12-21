@@ -7,7 +7,7 @@ import {
 
 import {
   Dependency,
-  Holiday,
+  Day,
   Person,
   Task,
 } from './types';
@@ -90,7 +90,7 @@ function genHolidays(person: Person, tasks: Task[], options?: Options) {
   if (holidayCount < 1) return person;
   const days = sequence(0, totalEfforts * 2);
   const holidayArray = [...shuffle(days).slice(0, holidayCount)].sort((a, b) => a - b);
-  const holidays = holidayArray.reduce<Holiday[]>((r, h) => {
+  const holidays = holidayArray.reduce<Day[]>((r, h) => {
     if (r.length < 1) return [h];
     const i = r.length - 1;
     const last = r[i];
