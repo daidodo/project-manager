@@ -5,9 +5,10 @@
   - Group: A task must be done by a group of people.
 - Support ramp up time.
 - Support catchup time after holidays.
+- Support milestones.
 
 ### DONE
 
 - Support late start.
-- Support holidays (ooo).
+- Support holidays.
 - Support leading time.
